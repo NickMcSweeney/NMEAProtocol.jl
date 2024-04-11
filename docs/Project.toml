@@ -1,0 +1,3 @@
+[deps]
+Documenter = "e30172f5-a6a5-5a46-863b-614d45cd2de4"
+NMEAProtocol = "ef943452-3a45-4f3f-88dc-bab9b18141fe"
