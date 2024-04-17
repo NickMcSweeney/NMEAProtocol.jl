@@ -28,94 +28,109 @@ const TalkerID = Dict{String,SYSTEM.T}(
 _to_system(id::AbstractString)::SYSTEM.T = get(TalkerID, id, SYSTEM.UNKNOWN)
 
 
-# """
-#     _to_int(item)
-# Converts a string representing an integer to a Int, if parse fails it defaults to 0.
-# """
-# _to_int(item::AbstractString)::Int = something(tryparse(Int, item), 0)
-# _to_int(::Nothing)::Int = 0
-# _to_int(items::Vector{S}, idx::Int) where S <: AbstractString = _to_int(get(items, idx, nothing))
+"""
+    _to_int(item)
+Converts a string representing an integer to a Int, if parse fails it defaults to 0.
+"""
+_to_int(item::AbstractString)::Int = something(Parsers.tryparse(Int, item), 0)
+_to_int(::Nothing)::Int = 0
 
-# """
-# _to_float(item)
-# Converts a string representing an float to a Float64, if parse fails it defaults to 0.0.
-# """
-# _to_float(item::AbstractString)::Float64 = something(tryparse(Float64, item), 0.0)
-# _to_float(::Nothing)::Float64 = 0.0
-# _to_float(items::Vector{S}, idx::Int) where S <: AbstractString = _to_float(get(items, idx, nothing))
+"""
+_to_float(item)
+Converts a string representing an float to a Float64, if parse fails it defaults to 0.0.
+"""
+_to_float(item::AbstractString)::Float64 = something(Parsers.tryparse(Float64, item), 0.0)
+_to_float(::Nothing)::Float64 = 0.0
 
-# """
-#     _dms_to_dd(dms, hemi)
+"""
+_to_decimal_deg(dms, hemi)
 
-# Converts a string representing degrees, minutes and seconds (DMS) to decimal degrees.
+Converts a string representing longitude or latitude in degrees and minutes (DDDMM.mmm [N|S|E|W]) to decimal degrees (±DD.ddd).
+if either arguments are nothing returns 0.0
+"""
+function _to_decimal_deg(dms::AbstractString, hemi::AbstractString)::Float64
+    if dms === "" || hemi === "" || !occursin(".", dms) || sizeof(dms) < 6
+        throw(ArgumentError("Incorrect string format. possibly missing decimal index or string is empty"))
+    end
 
-# # Arguments
-# - `dms`: a substring representing degrees, minutes and seconds
-# - `hemi`: a substring representing the hemisphere
+    decimalindex = findfirst('.', dms)
+    degrees = something(Parsers.tryparse(Float64,view(dms, 1:decimalindex-3)), 0.0)
+    minutes = something(Parsers.tryparse(Float64,view(dms, decimalindex-2:sizeof(dms))), 0.0)
+    dec_degrees = degrees + (minutes / 60.0)
 
-# # Returns
-# - `dec_degrees`: the decimal degree representation of the input DMS
+    if (hemi === "S" || hemi === "W")
+        dec_degrees *= -1.0
+    elseif (hemi === "N" || hemi === "E")
+        dec_degrees *= 1.0
+    else
+        dec_degrees *= 0.0
+    end
 
-# # Example
-# ```julia
-# dms = "4807.038"
-# hemi = "N"
-# dec_degrees = _dms_to_dd(dms, hemi)
-# ```
-# """
-# function _dms_to_dd(dms::T, hemi::T)::Union{Float64, Nothing} where {T <: AbstractString}
-#     if dms == "" || hemi == ""
-#         throw(ArgumentError("Empty string cannot be parsed"))
-#     end
+    dec_degrees
+end # function _dms_to_dd
+_to_decimal_deg(::Nothing, ::Nothing) = 0.0
+_to_decimal_deg(::AbstractString, ::Nothing) = 0.0
+_to_decimal_deg(::Nothing, ::AbstractString) = 0.0
 
-#     if (dms[1:1] == "0")
-#         dms = dms[2:end]
-#     end
+"""
+_to_time(timestamp)
 
-#     decimalindex = findfirst('.', dms)
-#     if isnothing(decimalindex)
-#         throw(ArgumentError("Missing decimal index"))
-#     end
-#     degrees = Base.parse(Float64, dms[1:decimalindex-3])
-#     minutes = Base.parse(Float64, dms[decimalindex-2:end])
-#     dec_degrees = degrees + (minutes / 60)
+Converts a string in the format HHMMSS.sss to a Dates.Time object. 
+If the argument is nothing the current time in UTC will be returned.
+"""
+function _to_time(timestamp::AbstractString)::Time
+    if sizeof(timestamp) < 6 || 10 < sizeof(timestamp)
+        throw(ArgumentError("Unable to parse date time. Expected HHMMSS.sss format."))
+    end
 
-#     if (hemi == "S" || hemi == "W")
-#         dec_degrees *= -1
-#     end
+    # something(Parsers.tryparse(Time, timestamp, Parsers.Options(dateformat="HHMMSS.sss")), Time(now(UTC)))
+    Time(timestamp, dateformat"HHMMSS.sss")
+end
+_to_time(::Nothing)::Time = Time(now(UTC))
 
-#     dec_degrees
-# end # function _dms_to_dd
-# _dms_to_dd(::Nothing, ::Nothing) = 0.0
-# _dms_to_dd(::Any, ::Nothing) = 0.0
-# _dms_to_dd(::Nothing, ::Any) = 0.0
-# _dms_to_dd(items::Vector{S}, idx::Int) where S <: AbstractString = _dms_to_dd(get(items, idx, nothing), get(items, idx+1, nothing))
+"""
+_to_distance(dist, unit)
 
-# """
-#     _hms_to_secs(hms)
+convert a distance in a given unit to a distance in meters
+"""
+function _to_distance(dist::Float64, unit::Char)::Float64
+    if unit === 'F'
+        # F feet
+        return dist * 0.3048
+    elseif unit === 'N'
+        # N miles
+        return dist * 1609.344
+    elseif unit === 'K'
+        # K kilometer
+        return dist * 1000.0
+    elseif unit === 'M'
+        # M meter
+        return dist
+    else
+        throw(ArgumentError("Position unit $unit is not supported"))
+    end
+end
+_to_distance(dist::AbstractString, unit::AbstractString)::Float64 = _to_distance(_to_float(dist), only(unit))
+_to_distance(::AbstractString, ::Nothing) = 0.0
+_to_distance(::Nothing, ::AbstractString) = 0.0
+_to_distance(::Nothing, ::Nothing) = 0.0
 
-# Converts a string representing hours, minutes and seconds (HMS) to seconds.
 
-# # Arguments
-# - `hms`: a substring representing hours, minutes and seconds
-
-# # Returns
-# - `seconds`: the number of seconds represented by the input HMS
-
-# # Example
-# ```julia
-# hms = "123519"
-# seconds = _hms_to_secs(hms)
-# ```
-# """
-# function _hms_to_secs(hms::T)::Float64 where { T <: AbstractString }
-#     if length(hms) < 6
-#         throw(ArgumentError("Not enough characters to be a time value"))
-#     end
-#     hours = Base.parse(Float64, hms[1:2])
-#     minutes = Base.parse(Float64, hms[3:4])
-#     seconds = Base.parse(Float64, hms[5:end])
-#     (hours * 3600) + (minutes * 60) + seconds
-# end # function _hms_to_secs
-# _hms_to_secs(::Nothing) = 0.0
-# _hms_to_secs(items::Vector{S}, idx::Int) where S <: AbstractString = _hms_to_secs(get(items, idx, nothing))
+function _to_speed(velocity::Float64, unit::Char)::Float64
+    if unit == 'N'
+        # N knots
+        return velocity / 1.94384449244
+    elseif unit == 'K'
+        # K kilometer per hour
+        return velocity / 3.6
+    elseif unit == 'M'
+        # M meters per second
+        return velocity
+    else
+        throw(ArgumentError("Velocity unit $unit is not supported"))
+    end
+end
+_to_speed(velocity::AbstractString, unit::AbstractString)::Float64 = _to_speed(_to_float(velocity), only(unit))
+_to_speed(::AbstractString, ::Nothing) = 0.0
+_to_speed(::Nothing, ::AbstractString) = 0.0
+_to_speed(::Nothing, ::Nothing) = 0.0

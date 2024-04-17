@@ -21,8 +21,15 @@ module CodeAnalysisTests
     include("analysis.test.jl")
 end
 
+module BenchmarkTests
+    using ReTest, NMEAProtocol
+    include("benchmark.test.jl")
+end
+
 retest(NMEAProtocol, NMEATypesTests)
 retest(NMEAProtocol, NMEAParsingTests)
 
 retest(NMEAProtocol, CodeQualityTests)
 retest(NMEAProtocol, CodeAnalysisTests)
+
+retest(NMEAProtocol, BenchmarkTests)

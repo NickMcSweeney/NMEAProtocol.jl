@@ -1,4 +1,4 @@
-using Aqua, NMEAProtocol
+using Aqua
 
 @testset verbose=true "Code quality test with Aqua" begin
     @testset verbose=true "Test ambiguitie" begin

@@ -51,7 +51,9 @@ Memory estimate: 0 bytes, allocs estimate: 0.
 
 """
 
-using Dates, EnumX
+using Dates
+using EnumX
+using Parsers
 
 include("types.jl")
 include("parse.jl")
