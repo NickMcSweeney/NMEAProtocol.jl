@@ -3,11 +3,25 @@ uuid = "ef943452-3a45-4f3f-88dc-bab9b18141fe"
 authors = ["nick <nick@shindler.tech> and contributors"]
 version = "1.0.0-DEV"
 
+[deps]
+Dates = "ade2ca70-3891-5945-98fb-dc099432e06a"
+EnumX = "4e289a0a-7415-4d19-859d-a7e5c4648b56"
+
+[weakdeps]
+PrecompileTools = "aea7be01-6a6a-4083-8856-8a6e6704d82a"
+
+[extensions]
+PrecompileExt = "PrecompileTools"
+
 [compat]
 julia = "1.9"
 
 [extras]
-Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
+Aqua = "4c88cf16-eb10-579e-8560-4a9242c79595"
+Cthulhu = "f68482b8-f384-11e8-15f7-abe071a5a75f"
+JET = "c3a54625-cd67-489e-a8e7-0a5a0ff4e31b"
+ReTest = "e0db7c4e-2690-44b9-bad6-7687da720f89"
+SnoopCompile = "aa65fe97-06da-5843-b5b1-d5d13cad87d2"
 
 [targets]
-test = ["Test"]
+test = ["Aqua", "Cthulhu", "JET", "ReTest", "SnoopCompile"]

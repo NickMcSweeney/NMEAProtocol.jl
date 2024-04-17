@@ -1,6 +1,28 @@
 using NMEAProtocol
-using Test
+using ReTest
 
-@testset "NMEAProtocol.jl" begin
-    # Write your tests here.
+module NMEATypesTests
+    using ReTest, NMEAProtocol
+    include("types.test.jl")
 end
+
+module NMEAParsingTests
+    using ReTest, NMEAProtocol
+    include("parse.test.jl")
+end
+
+module CodeQualityTests
+    using ReTest, NMEAProtocol
+    include("quality.test.jl")
+end
+
+module CodeAnalysisTests
+    using ReTest, NMEAProtocol
+    include("analysis.test.jl")
+end
+
+retest(NMEAProtocol, NMEATypesTests)
+retest(NMEAProtocol, NMEAParsingTests)
+
+retest(NMEAProtocol, CodeQualityTests)
+retest(NMEAProtocol, CodeAnalysisTests)
