@@ -63,6 +63,47 @@
     UNKNOWN
 end
 
+struct NMEAPacket{T<:AbstractNMEAMessage} <: AbstractNMEAPacket
+    system::SYSTEM.T
+    timestamp::Time
+    message::T
+    valid::Bool
+end
+
+struct UnkNMEAMessage <: AbstractNMEAMessage end
+
+struct GGA <: AbstractNMEAMessage
+x
+end
+struct GSA <: AbstractNMEAMessage
+x
+end
+struct DTM <: AbstractNMEAMessage
+x
+end
+struct GBS <: AbstractNMEAMessage
+x
+end
+struct GLL <: AbstractNMEAMessage
+x
+end
+struct GSV <: AbstractNMEAMessage
+x
+end
+struct GST <: AbstractNMEAMessage
+x
+end
+struct RMC <: AbstractNMEAMessage
+x
+end
+struct VTG <: AbstractNMEAMessage
+x
+end
+struct ZDA <: AbstractNMEAMessage
+x
+end
+
+
 # """
 #     GGA()
 

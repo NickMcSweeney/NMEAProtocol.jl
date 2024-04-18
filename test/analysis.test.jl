@@ -8,6 +8,11 @@ using JET
             report = report_callees(inference_triggers(snoop))
             @test report == []
         end
+        @testset "_to_type" begin
+            snoop = @snoopi_deep NMEAProtocol._to_type(rand(["GGA","GSA","DTM","GBS","GLL","GSV","GST","RMC","VTG","ZDA"]))
+            report = report_callees(inference_triggers(snoop))
+            @test report == []
+        end
         @testset "_to_int" begin
             snoop = @snoopi_deep NMEAProtocol._to_int(string(rand(Int16)))
             report = report_callees(inference_triggers(snoop))

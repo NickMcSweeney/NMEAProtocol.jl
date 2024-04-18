@@ -1,4 +1,4 @@
-using NMEAProtocol: _to_system
+using NMEAProtocol: _to_system, _to_type
 using NMEAProtocol: _to_float, _to_int
 using NMEAProtocol: _to_decimal_deg, _to_time
 using NMEAProtocol: _to_distance, _to_speed
@@ -79,6 +79,39 @@ using Dates
         end
         @testset "Eval string talker id: WI to system enum: Weather" begin
             @test _to_system("WI") === SYSTEM.Weather
+        end
+    end
+
+    @testset "_to_type" begin
+        @testset "Eval message format string to nmea message type: GGA" begin
+            @test _to_type("GGA") === GGA
+        end
+        @testset "Eval message format string to nmea message type: GSA" begin
+            @test _to_type("GSA") === GSA
+        end
+        @testset "Eval message format string to nmea message type: DTM" begin
+            @test _to_type("DTM") === DTM
+        end
+        @testset "Eval message format string to nmea message type: GBS" begin
+            @test _to_type("GBS") === GBS
+        end
+        @testset "Eval message format string to nmea message type: GLL" begin
+            @test _to_type("GLL") === GLL
+        end
+        @testset "Eval message format string to nmea message type: GSV" begin
+            @test _to_type("GSV") === GSV
+        end
+        @testset "Eval message format string to nmea message type: GST" begin
+            @test _to_type("GST") === GST
+        end
+        @testset "Eval message format string to nmea message type: RMC" begin
+            @test _to_type("RMC") === RMC
+        end
+        @testset "Eval message format string to nmea message type: VTG" begin
+            @test _to_type("VTG") === VTG
+        end
+        @testset "Eval message format string to nmea message type: ZDA" begin
+            @test _to_type("ZDA") === ZDA
         end
     end
 

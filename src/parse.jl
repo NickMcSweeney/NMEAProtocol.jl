@@ -25,8 +25,30 @@ const TalkerID = Dict{String,SYSTEM.T}(
     "WI" => SYSTEM.Weather,
 )
 
+const MessageType = Dict{String, Type}(
+    "GGA" => GGA,
+    "GSA" => GSA,
+    "DTM" => DTM,
+    "GBS" => GBS,
+    "GLL" => GLL,
+    "GSV" => GSV,
+    "GST" => GST,
+    "RMC" => RMC,
+    "VTG" => VTG,
+    "ZDA" => ZDA,
+)
+
+"""
+    _to_system(id)
+lookup the system being used based on the 2 character talker id
+"""
 _to_system(id::AbstractString)::SYSTEM.T = get(TalkerID, id, SYSTEM.UNKNOWN)
 
+"""
+    _to_type(format)
+lookup the type of nmea string based on the 3 character message format identifier
+"""
+_to_type(format::AbstractString)::Type = get(MessageType, format, UnkNMEAMessage)
 
 """
     _to_int(item)
@@ -134,3 +156,15 @@ _to_speed(velocity::AbstractString, unit::AbstractString)::Float64 = _to_speed(_
 _to_speed(::AbstractString, ::Nothing) = 0.0
 _to_speed(::Nothing, ::AbstractString) = 0.0
 _to_speed(::Nothing, ::Nothing) = 0.0
+
+function parse(::Type{NMEAPacket}, nmeastring::AbstractString)::NMEAPacket
+    ((message,checksum)) = eachsplit(nmeastring, "*", limit=2, keepempty=true)
+    ((header,time,body)) = eachsplit(message, ",", limit=3, keepempty=true)
+
+    # itr = eachsplit(message)
+    # (header,state) = iterate(itr)
+    # (b,state) = iterate(itr,state)
+    # (c,state) = iterate(itr,state)
+    # str = MyStruct(a,b,c)
+    NMEAPacket(_to_system(view(header,2:3)), _to_time(time), _to_type(view(header,4:6))(body), true)
+end

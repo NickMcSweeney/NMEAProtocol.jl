@@ -7,6 +7,7 @@ SUITE["parse"] = BenchmarkGroup(["_to_system", "_to_int", "_to_float", "_to_deci
 # benchmarks
 
 SUITE["parse"]["_to_system"] = @benchmarkable NMEAProtocol._to_system(str) setup = (str = rand(["AI","AP","BD","CD","EC","GA","GB","GI","GL","GN","GP","GQ","HC","HE","II","IN","LC","PQ","QZ","SD","ST","TI","YX","WI"]))
+SUITE["parse"]["_to_type"] = @benchmarkable NMEAProtocol._to_type(str) setup = (str = rand(["GGA","GSA","DTM","GBS","GLL","GSV","GST","RMC","VTG","ZDA"]))
 SUITE["parse"]["_to_int"] = @benchmarkable NMEAProtocol._to_int(str) setup = (str = string(rand(Int)))
 SUITE["parse"]["_to_float"] = @benchmarkable NMEAProtocol._to_float(str) setup = (str = string(rand(Float64)))
 SUITE["parse"]["_to_decimal_deg"] = @benchmarkable NMEAProtocol._to_decimal_deg(data[1], data[2]) setup=(data=("$(rand(1000:99999)).$(rand(1000:99999999))", string(rand(["N", "S", "E", "W"]))))

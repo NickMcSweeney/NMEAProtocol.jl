@@ -55,6 +55,13 @@ using Dates
 using EnumX
 using Parsers
 
+export AbstractNMEAPacket, AbstractNMEAMessage
+export NMEAPacket, UnkNMEAMessage
+export GGA, GSA, DTM, GBS, GLL, GSV, GST, RMC, VTG, ZDA
+
+abstract type AbstractNMEAPacket end
+abstract type AbstractNMEAMessage end
+
 include("types.jl")
 include("parse.jl")
 

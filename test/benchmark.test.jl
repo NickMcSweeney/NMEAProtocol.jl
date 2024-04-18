@@ -9,7 +9,7 @@ judgement_path = joinpath(pkgdir, "benchmark", "judgement.md")
 baseline = readresults(baseline_path)
 
 results = benchmarkpkg(NMEAProtocol)
-export_markdown(results_path, results, export_invariants=true)
+export_markdown(results_path, results)
 
 judgement = judge(results, baseline)
 export_markdown(judgement_path, judgement, export_invariants=true)
