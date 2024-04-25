@@ -63,12 +63,18 @@
     UNKNOWN
 end
 
-struct NMEAPacket{T<:AbstractNMEAMessage} <: AbstractNMEAPacket
+struct NMEAPacket{T <: AbstractNMEAMessage} <: AbstractNMEAPacket
     system::SYSTEM.T
     timestamp::Time
+    # type::Type
+    # message::String
     message::T
     valid::Bool
+
+    NMEAPacket{T}(message::T; system::SYSTEM.T=SYSTEM.UNKNOWN, timestamp::Time=_to_time(nothing), valid::Bool=false) where {T<:AbstractNMEAMessage} = new(system, timestamp, message, valid)
 end
+# (packet::NMEAPacket)() = packet.header(packet.message)
+
 
 struct UnkNMEAMessage <: AbstractNMEAMessage end
 

@@ -25,7 +25,7 @@ const TalkerID = Dict{String,SYSTEM.T}(
     "WI" => SYSTEM.Weather,
 )
 
-const MessageType = Dict{String, Type}(
+const MessageType = Dict{String, Type{<:AbstractNMEAMessage}}(
     "GGA" => GGA,
     "GSA" => GSA,
     "DTM" => DTM,
@@ -48,7 +48,7 @@ _to_system(id::AbstractString)::SYSTEM.T = get(TalkerID, id, SYSTEM.UNKNOWN)
     _to_type(format)
 lookup the type of nmea string based on the 3 character message format identifier
 """
-_to_type(format::AbstractString)::Type = get(MessageType, format, UnkNMEAMessage)
+_to_type(format::AbstractString)::Type{<:AbstractNMEAMessage} = get(MessageType, format, UnkNMEAMessage)
 
 """
     _to_int(item)
@@ -137,7 +137,11 @@ _to_distance(::AbstractString, ::Nothing) = 0.0
 _to_distance(::Nothing, ::AbstractString) = 0.0
 _to_distance(::Nothing, ::Nothing) = 0.0
 
+"""
+_to_speed(velocity, unit)
 
+convert a speed in a given unit to a velocity in meters/s
+"""
 function _to_speed(velocity::Float64, unit::Char)::Float64
     if unit == 'N'
         # N knots
@@ -157,14 +161,35 @@ _to_speed(::AbstractString, ::Nothing) = 0.0
 _to_speed(::Nothing, ::AbstractString) = 0.0
 _to_speed(::Nothing, ::Nothing) = 0.0
 
-function parse(::Type{NMEAPacket}, nmeastring::AbstractString)::NMEAPacket
+"""
+_hash_msg(message)
+
+perform an xor hash of a string.
+"""
+_char_xor(a::Char,b::Char) = xor(UInt8(a), UInt8(b))
+_char_xor(a::UInt8,b::Char) = xor(a, UInt8(b))
+_char_xor(a::Char,b::UInt8) = xor(UInt8(a), b)
+_hash_msg(message::AbstractString)::UInt8 = foldl(_char_xor, chopprefix(message, "\$"))
+
+"""
+NMEAProtocol.parse(::NMEAPacket, nmeastring)
+NMEAProtocol.parse(::NMEAPacket{AbstractNMEAMessage}, nmeastring)
+
+parses a string into a NMEAPacket. specifying the sub-type of nmea string improves performance. 
+But the type will be looked up if it is not specified.
+"""
+function parse(::Type{NMEAPacket}, nmeastring::AbstractString)::NMEAPacket{<:AbstractNMEAMessage}
+    idx = findfirst(',', nmeastring)
+    T = _to_type(view(nmeastring,idx-3:idx-1))
+    parse(NMEAPacket{T}, nmeastring)
+end
+function parse(::Type{NMEAPacket{T}}, nmeastring::AbstractString)::NMEAPacket{T} where {T<:AbstractNMEAMessage}
     ((message,checksum)) = eachsplit(nmeastring, "*", limit=2, keepempty=true)
     ((header,time,body)) = eachsplit(message, ",", limit=3, keepempty=true)
-
-    # itr = eachsplit(message)
-    # (header,state) = iterate(itr)
-    # (b,state) = iterate(itr,state)
-    # (c,state) = iterate(itr,state)
-    # str = MyStruct(a,b,c)
-    NMEAPacket(_to_system(view(header,2:3)), _to_time(time), _to_type(view(header,4:6))(body), true)
+ 
+    NMEAPacket{T}(T(body),
+        system=_to_system(view(header, 2:3)),
+        timestamp=_to_time(time),
+        valid=(_hash_msg(nmeastring) === Base.parse(UInt8, "0x$checksum"))
+    )
 end
