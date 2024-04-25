@@ -1,4 +1,4 @@
-using NMEAProtocol: _to_system, _to_type
+using NMEAProtocol: _to_system, _to_type, _hash_msg
 using NMEAProtocol: _to_float, _to_int
 using NMEAProtocol: _to_decimal_deg, _to_time
 using NMEAProtocol: _to_distance, _to_speed
@@ -189,8 +189,38 @@ using Dates
         @test _to_speed("10.0", "M") === 10.0
         @test_throws ArgumentError _to_speed("10.0", "X")
     end
+
+    @testset "_hash_msg" begin
+        @test _hash_msg(raw"$GPGGA,134735.000,5540.3232,N,01231.2946,E,1,10,0.8,23.6,M,41.5,M,,0000") === 0x69
+        @test _hash_msg(raw"$GPGSA,A,3,03,22,06,19,11,14,32,01,28,18,,,1.8,0.8,1.6") === 0x3f
+        @test _hash_msg(raw"$GPRMC,134735.000,A,5540.3232,N,01231.2946,E,1.97,88.98,041112,,,A") === 0x5c
+        @test _hash_msg(raw"$GPVTG,88.98,T,,M,1.97,N,3.6,K,A") === 0x36
+        @test _hash_msg(raw"$GLGSV,3,3,09,72,07,273,,0") === 0x44
+        @test _hash_msg(raw"$GNRMC,094810.000,A,5547.94084,N,03730.27293,E,0.25,50.34,260420,,,A,V") === 0x31
+        @test _hash_msg(raw"$GNVTG,50.34,T,,M,0.25,N,0.46,K,A") === 0x14
+        @test _hash_msg(raw"$GNZDA,094810.000,26,04,2020,00,00") === 0x4c
+        @test _hash_msg(raw"$GNGLL,5547.94084,N,03730.27293,E,094810.000,A,A") === 0x4b
+    end
 end
 
 @testset verbose = true "Public Methods" begin
+    @testset "NMEAProtocol.parse(NMEAPacket, nmeastring)" begin
+        nmea_msgs = Dict{String,Type}(
+            raw"$GPGGA,134735.000,5540.3232,N,01231.2946,E,1,10,0.8,23.6,M,41.5,M,,0000*69" => GGA,
+            raw"$GPGSA,A,3,03,22,06,19,11,14,32,01,28,18,,,1.8,0.8,1.6*3F" => GSA,
+            raw"$GPRMC,134735.000,A,5540.3232,N,01231.2946,E,1.97,88.98,041112,,,A*5C" => RMC,
+            raw"$GPVTG,88.98,T,,M,1.97,N,3.6,K,A*36" => VTG,
+            raw"$GLGSV,3,3,09,72,07,273,,0*44" => GSV,
+            raw"$GNRMC,094810.000,A,5547.94084,N,03730.27293,E,0.25,50.34,260420,,,A,V*31" => RMC,
+            raw"$GNVTG,50.34,T,,M,0.25,N,0.46,K,A*14" => VTG,
+            raw"$GNZDA,094810.000,26,04,2020,00,00*4C" => ZDA,
+            raw"$GNGLL,5547.94084,N,03730.27293,E,094810.000,A,A*4B" => GLL,
+        )
 
+        for (msg, tt) in nmea_msgs
+            parsed = NMEAProtocol.parse(NMEAPacket, msg)
+            @test parsed isa NMEAPacket{tt}
+            @test NMEAProtocol.parse(NMEAPacket{tt}, msg).message === parsed.message
+        end
+    end
 end

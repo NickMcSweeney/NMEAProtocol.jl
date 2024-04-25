@@ -185,11 +185,11 @@ function parse(::Type{NMEAPacket}, nmeastring::AbstractString)::NMEAPacket{<:Abs
 end
 function parse(::Type{NMEAPacket{T}}, nmeastring::AbstractString)::NMEAPacket{T} where {T<:AbstractNMEAMessage}
     ((message,checksum)) = eachsplit(nmeastring, "*", limit=2, keepempty=true)
-    ((header,time,body)) = eachsplit(message, ",", limit=3, keepempty=true)
+    ((header,body)) = eachsplit(message, ",", limit=2, keepempty=true)
  
-    NMEAPacket{T}(T(body),
+    NMEAPacket{T}(
+        T(body),
         system=_to_system(view(header, 2:3)),
-        timestamp=_to_time(time),
-        valid=(_hash_msg(nmeastring) === Base.parse(UInt8, "0x$checksum"))
+        valid=(_hash_msg(message) === Base.parse(UInt8, "0x$checksum"))
     )
 end
