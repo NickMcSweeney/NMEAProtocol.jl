@@ -161,19 +161,21 @@ _to_speed(::AbstractString, ::Nothing) = 0.0
 _to_speed(::Nothing, ::AbstractString) = 0.0
 _to_speed(::Nothing, ::Nothing) = 0.0
 
-"""
-_hash_msg(message)
 
-perform an xor hash of a string.
-"""
 _char_xor(a::Char,b::Char) = xor(UInt8(a), UInt8(b))
 _char_xor(a::UInt8,b::Char) = xor(a, UInt8(b))
 _char_xor(a::Char,b::UInt8) = xor(UInt8(a), b)
+
+"""
+    _hash_msg(message)
+
+perform an xor hash of a string.
+"""
 _hash_msg(message::AbstractString)::UInt8 = foldl(_char_xor, chopprefix(message, "\$"))
 
 """
-NMEAProtocol.parse(::NMEAPacket, nmeastring)
-NMEAProtocol.parse(::NMEAPacket{AbstractNMEAMessage}, nmeastring)
+    NMEAProtocol.parse(::NMEAPacket, nmeastring)
+    NMEAProtocol.parse(::NMEAPacket{AbstractNMEAMessage}, nmeastring)
 
 parses a string into a NMEAPacket. specifying the sub-type of nmea string improves performance. 
 But the type will be looked up if it is not specified.

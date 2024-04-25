@@ -14,18 +14,11 @@ using PrecompileTools, NMEAProtocol
         raw"$GNVTG,50.34,T,,M,0.25,N,0.46,K,A*14",
         raw"$GNZDA,094810.000,26,04,2020,00,00*4C",
         raw"$GNGLL,5547.94084,N,03730.27293,E,094810.000,A,A*4B",
-        raw"$PTWPOS,154922.69,0.7,M,0.7,M,0,M,0.989949,M,0.01,K,F*07",
-        raw"$PTWVCT,154932.45,0.7,M,0.7,R,0.4,M,0.989949,M*3e",
-        raw"$PTWPLS,021540.19,12,P,14,P,20,D*54",
-        raw"$PTWWHE,021539.62,12,0.3,M,F,12,0.3,M,F,0.01*30",
-        raw"$PTWHPR,161540.45,12.456,78.901,2.34,79.912,0.12*2E",
-        raw"$PTACC,154156.65,0.777,0.123,0.011*43",
-        raw"$PTGYR,156921.39,0.777,0.123,0.011*4d",
     ]
     @compile_workload begin
         # nmea_strings = NMEAParser.nmea_parse.(test_msgs)
         for msg in test_msgs
-            NMEAProtocol._to_system(msg[2:3])
+            NMEAProtocol.parse(NMEAPacket, msg)
         end
     end
 end

@@ -1,18 +1,18 @@
 """
     SYSTEM
 
-    NMEA sentences include a Talker Identifier (ID) after the “\$” sign. The talker ID is a two-character prefix that identifies the type of the transmitting unit. 
+NMEA sentences include a Talker Identifier (ID) after the “\$” sign. The talker ID is a two-character prefix that identifies the type of the transmitting unit. 
 
-    Standard Systems are:
-    GA	European Global Navigation System (Galileo
-    GB	BeiDou Navigation Satellite System (BDS)
-    GI	Navigation Indian Constellatiozn (NavIC)
-    GL	Globalnaya Navigazionnaya Sputnikovaya Sistema (GLONASS)
-    GN	Global Navigation Satellite System (GNSS)
-    GP	Global Positioning System (GPS)
-    GQ	Quasi-Zenith Satellite System (QZSS)
+Standard Systems are:
+- GA	European Global Navigation System (Galileo
+- GB	BeiDou Navigation Satellite System (BDS)
+- GI	Navigation Indian Constellatiozn (NavIC)
+- GL	Globalnaya Navigazionnaya Sputnikovaya Sistema (GLONASS)
+- GN	Global Navigation Satellite System (GNSS)
+- GP	Global Positioning System (GPS)
+- GQ	Quasi-Zenith Satellite System (QZSS)
 
-    There are aditional IDs for non-standard sources.
+There are aditional IDs for non-standard sources.
 """
 @enumx SYSTEM::UInt8 begin
     "Combination of multiple satellite systems (NMEA 1083)"
@@ -63,6 +63,14 @@
     UNKNOWN
 end
 
+"""
+    NMEAPacket
+    NMEAPacket{<:AbstractNMEAMessage}
+
+wrapping type of all nmea messages. contains information from the string header.
+The satelite system used, the time the string was parsed and if the checksum matches the message hash.
+and of course the NMEA string for the data.
+"""
 struct NMEAPacket{T <: AbstractNMEAMessage} <: AbstractNMEAPacket
     system::SYSTEM.T
     timestamp::DateTime
@@ -75,36 +83,100 @@ struct NMEAPacket{T <: AbstractNMEAMessage} <: AbstractNMEAPacket
 end
 # (packet::NMEAPacket)() = packet.header(packet.message)
 
+"""
+    UnkNMEAMessage
 
+Empty type for invalid or unknown nmea strings.
+"""
 struct UnkNMEAMessage <: AbstractNMEAMessage end
 
+"""
+    GGA(msg)
+
+## NMEA-0183 message: GGA
+
+Time, position, and fix related data.
+
+## Format
+
+        \$<TalkerID>GGA,<Timestamp>,<Lat>,<N/S>,<Long>,<E/W>,<GPSQual>,<Sats>,<HDOP>,<Alt>,<AltVal>,<GeoSep>,<GeoVal>,<DGPSAge>,<DGPSRef>*<checksum><CR><LF>
+
+## Example
+
+        \$GPGGA,172814.0,3723.46587704,N,12202.26957864,W,2,6,1.2,18.893,M,-25.669,M,2.0 0031*4F
+"""
 struct GGA <: AbstractNMEAMessage
 x
 end
+
+"""
+    GSA
+
+"""
 struct GSA <: AbstractNMEAMessage
 x
 end
+
+"""
+    DTM
+
+"""
 struct DTM <: AbstractNMEAMessage
 x
 end
+
+"""
+    GBS
+
+"""
 struct GBS <: AbstractNMEAMessage
 x
 end
+
+"""
+    GLL
+
+"""
 struct GLL <: AbstractNMEAMessage
 x
 end
+
+"""
+    GSV
+
+"""
 struct GSV <: AbstractNMEAMessage
 x
 end
+
+"""
+    GST
+
+"""
 struct GST <: AbstractNMEAMessage
 x
 end
+
+"""
+    RMC
+
+"""
 struct RMC <: AbstractNMEAMessage
 x
 end
+
+"""
+    VTG
+
+"""
 struct VTG <: AbstractNMEAMessage
 x
 end
+
+"""
+    ZDA
+
+"""
 struct ZDA <: AbstractNMEAMessage
 x
 end

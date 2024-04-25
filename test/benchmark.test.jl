@@ -14,7 +14,12 @@ export_markdown(results_path, results)
 judgement = judge(results, baseline)
 export_markdown(judgement_path, judgement, export_invariants=true)
 
-# PkgBenchmark.writeresults(baseline_path, results)
+if(ENV["GITHUB_ACTIONS"] || ENV["GITHUB_ACTIONS"] === "true")
+    @info "In CI: saving new baseline"
+    PkgBenchmark.writeresults(baseline_path, results)
+else
+    @info "Not in CI: skipping baseline save"
+end
 
 @testset verbose=true "benchmark" begin
     for (key,group) in judgement.benchmarkgroup

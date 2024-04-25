@@ -4,7 +4,7 @@ using Documenter
 DocMeta.setdocmeta!(NMEAProtocol, :DocTestSetup, :(using NMEAProtocol); recursive=true)
 
 makedocs(;
-    modules=[NMEAProtocol],
+    modules=[NMEAProtocol, NMEAProtocol.SYSTEM],
     authors="nick <nick@shindler.tech> and contributors",
     sitename="NMEAProtocol.jl",
     format=Documenter.HTML(;
@@ -14,7 +14,9 @@ makedocs(;
     ),
     pages=[
         "Home" => "index.md",
+        "Benchmark" => "benchmark.md",
     ],
+    warnonly = [:missing_docs]
 )
 
 deploydocs(;
