@@ -56,6 +56,7 @@ using EnumX
 using Parsers
 
 export AbstractNMEAPacket, AbstractNMEAMessage
+export SYSTEM
 export NMEAPacket
 export UnkNMEAMessage
 export GGA, GSA, DTM, GBS, GLL, GSV, GST, RMC, VTG, ZDA

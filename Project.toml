@@ -16,6 +16,8 @@ PrecompileExt = "PrecompileTools"
 
 [compat]
 julia = "1.9"
+EnumX = "1"
+Parsers = "2"
 
 [extras]
 Aqua = "4c88cf16-eb10-579e-8560-4a9242c79595"

@@ -161,6 +161,27 @@ _to_speed(::AbstractString, ::Nothing) = 0.0
 _to_speed(::Nothing, ::AbstractString) = 0.0
 _to_speed(::Nothing, ::Nothing) = 0.0
 
+function _to_mode(modestr::AbstractString)::FixMode.T
+    if modestr === "A"
+        FixMode.Automatic
+    elseif modestr === "M"
+        FixMode.Manual
+    else
+        FixMode.Unknown
+    end
+end
+
+function _to_fix(fixstr::AbstractString)::FixQuality.T
+    if fixstr === "1"
+        FixQuality.NotAvailable
+    elseif fixstr === "2"
+        FixQuality.TwoDimension
+    elseif fixstr === "3"
+        FixQuality.ThreeDimension
+    else
+        FixQuality.Unknown
+    end
+end
 
 _char_xor(a::Char,b::Char) = xor(UInt8(a), UInt8(b))
 _char_xor(a::UInt8,b::Char) = xor(a, UInt8(b))
@@ -187,11 +208,9 @@ function parse(::Type{NMEAPacket}, nmeastring::AbstractString)::NMEAPacket{<:Abs
 end
 function parse(::Type{NMEAPacket{T}}, nmeastring::AbstractString)::NMEAPacket{T} where {T<:AbstractNMEAMessage}
     ((message,checksum)) = eachsplit(nmeastring, "*", limit=2, keepempty=true)
-    ((header,body)) = eachsplit(message, ",", limit=2, keepempty=true)
  
     NMEAPacket{T}(
-        T(body),
-        system=_to_system(view(header, 2:3)),
+        T(message),
         valid=(_hash_msg(message) === Base.parse(UInt8, "0x$checksum"))
     )
 end

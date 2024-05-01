@@ -14,7 +14,7 @@ export_markdown(results_path, results)
 judgement = judge(results, baseline)
 export_markdown(judgement_path, judgement, export_invariants=true)
 
-if(ENV["GITHUB_ACTIONS"] === "true")
+if(get(ENV,"GITHUB_ACTIONS","false") === "true")
     @info "In CI: saving new baseline"
     PkgBenchmark.writeresults(baseline_path, results)
 else
